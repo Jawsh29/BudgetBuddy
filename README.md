@@ -1,6 +1,3 @@
 # BudgetBuddy
-Budgeting App to track finances and visualize expenses. Currently very basic. I would like to improve the Budget Reports page,
-this is my first time using matplotlib so I'm sure there is a better way to organize the data. I then want to add a way to 
-permanently save the Budget Reports in a file so it can be access after closing out of the app. Also, I plan on updating the UI.
-A classmate recommended CustomTkinter and I intend on looking into it to improve the look of the GUI
+Budgeting App to track finances and visualize expenses. Currently in development. Recenttly rewritten to utilize CustomTkinter. I plan to add more features and expand upon the capabilities of the app such as data visualization and more extensive budget list management
 
