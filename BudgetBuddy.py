@@ -1,24 +1,40 @@
 # This program allows the user to input expenses and spending goals and generate reports based on data
 
-from breezypythongui import EasyFrame
+import customtkinter as ctk
 from BudgetBuddyGoals import GoalsPage
 from BudgetBuddyExpenses import ExpensesPage
 from BudgetBuddyReports import ReportsPage
 
+# Set Application Appearance
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("green")
 
-class BudgetApp(EasyFrame):
+
+class BudgetBuddy(ctk.CTk):
     """Displays Main Menu"""
+
     def __init__(self):
+        super().__init__()
         """Displays Menu Options"""
-        EasyFrame.__init__(self, title="Budget Manager", width=800, height=600)
+        self.title("Budget Buddy")
+        self.geometry("800x600")
 
         # Initialize Data
         self.data = {}
 
         # Menu Buttons
-        self.goalsButton = self.addButton(text="Set Goals", row=0, column=0, command=self.set_goals)
-        self.expensesButton = self.addButton(text="Enter Expenses", row=1, column=0, command=self.enter_expenses)
-        self.ReportsButton = self.addButton(text="View Past Reports", row=2, column=0, command=self.view_reports)
+        # Goals Button
+        self.goalsButton = ctk.CTkButton(self, text="Set Goals", command=self.set_goals)
+        self.goalsButton.grid(row=1, column=0, padx=20, pady=10)
+        # Expenses Button
+        self.expensesButton = ctk.CTkButton(self, text="Enter Expenses", command=self.enter_expenses)
+        self.expensesButton.grid(row=2, column=0, padx=20, pady=10)
+        # Reports Button
+        self.reportsButton = ctk.CTkButton(self, text="View Past Reports", command=self.view_reports)
+        self.reportsButton.grid(row=3, column=0, padx=20, pady=10)
+
+        # Center Buttons
+        self.grid_columnconfigure(0, weight=1)
 
     def set_goals(self):
         """Opens the Goals page."""
@@ -32,10 +48,7 @@ class BudgetApp(EasyFrame):
         """Opens the Reports page."""
         ReportsPage(self).mainloop()
 
-def main():
-    """Instantiates and opens window."""
-    BudgetApp().mainloop()
-
 
 if __name__ == "__main__":
-    main()
+    app = BudgetBuddy()
+    app.mainloop()

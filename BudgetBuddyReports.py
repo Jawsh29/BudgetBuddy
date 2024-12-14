@@ -1,37 +1,41 @@
 # This window displays the budget report based on input data from Goals and Expenses
 
-from breezypythongui import EasyFrame
-import matplotlib.pyplot as plt
+import customtkinter as ctk
+import csv
 
 
-class ReportsPage(EasyFrame):
-    """Displays Reports Page"""
+class ReportsPage(ctk.CTkToplevel):
     def __init__(self, parent):
-        """Creates Report Charts"""
-        super().__init__(title="Expense Report", width=800, height=600)
+        super().__init__()
+        self.title("Expense Report")
+        self.geometry("800x600")
         self.parent = parent
 
-        categories = self.parent.data.get("categories", {})
-        if categories == "":
-            self.messageBox(title="Error", message="No data to generate report.")
-            return
+        # Scrollable Frame
+        frame = ctk.CTkScrollableFrame(self)
+        frame.pack(fill="both", expand=True)
 
-        # Pie chart
-        labels = list(categories.keys())
-        sizes = [cat["spent"] for cat in categories.values()]
-        plt.figure(figsize=(10, 5))
-        plt.subplot(1, 2, 1)
-        plt.pie(sizes, labels=labels)
-        plt.title("Spending by Category")
+        # Column headers
+        ctk.CTkLabel(frame, text="Category").grid(row=0, column=0, padx=10, pady=5)
+        ctk.CTkLabel(frame, text="Goal").grid(row=0, column=1, padx=10, pady=5)
+        ctk.CTkLabel(frame, text="Spent").grid(row=0, column=2, padx=10, pady=5)
 
-        # Bar chart
-        goals = [cat["goal"] for cat in categories.values()]
-        plt.subplot(1, 2, 2)
-        plt.bar(labels, sizes, label="Spent")
-        plt.bar(labels, goals, label="Goal", alpha=0.7)
-        plt.legend()
-        plt.title("Goals vs. Spending")
+        # Data rows
+        for i, (category, values) in enumerate(parent.data.get("categories", {}).items(), start=1):
+            ctk.CTkLabel(frame, text=category).grid(row=i, column=0, padx=10, pady=5)
+            ctk.CTkLabel(frame, text=values["goal"]).grid(row=i, column=1, padx=10, pady=5)
+            ctk.CTkLabel(frame, text=values["spent"]).grid(row=i, column=2, padx=10, pady=5)
 
-        # Show plots
-        plt.tight_layout()
-        plt.show()
+        export_button = ctk.CTkButton(self, text="Export to CSV File",
+                                      command=self.save_report_to_csv(self.parent.data["categories"]))
+        export_button.pack(pady=10)
+
+    def save_report_to_csv(self, data, file_name="Report.csv"):
+        """Save goals data to a CSV file."""
+        with open(file_name, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            # Write headers
+            writer.writerow(["Category", "Goal", "Spent"])
+            # Write category data
+            for category, values in data.items():
+                writer.writerow([category, values["goal"], values.get("spent", 0)])

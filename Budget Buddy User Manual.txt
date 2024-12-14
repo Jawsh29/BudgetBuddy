@@ -1,0 +1,23 @@
+Hello! Thank you for using Budget Buddy v1.0
+Budget Buddy is a budgeting tool meant to help you keep track of your 
+monthly expenses. It is currently a work in progress with many new features on the way!
+
+Getting Started
+First you should gather all of your receipts for the month or 
+open your banking account to see all of your recent transactions
+Now select "Set Goals" in the home page.
+
+Setting Goals
+In the Set Goals Window, define categories of spending you would like to set 
+spending goals for. Set a monetary goal for each category. Now Press "Add Goal".
+Once done, exit the Set Goals Window.
+
+Entering Expenses
+Now select "Enter Expenses". In the dropdown menu select the category you want to enter 
+expenses for. Now Add each expense you have for the selected category. Make sure to press "Add Expense" for each item. Once you've enter all expenses you'd like to calculate
+Select "Generate Report"
+
+Viewing Report
+Now a new window appears called "Expense Report". Here you can compare your set goals vs how much you spent per category. After reviewing, you can save your data to a csv file which can be loaded at a later time. 
+
+Thank you for trying my application, all feedback is welcome. I am excited to expand upon this app and add more features as I learn. 
