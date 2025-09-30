@@ -1,0 +1,103 @@
+Broken Access Control
+1.
+app.get('/profile/:userId', async (req, res) => {
+    try {
+        const requestedUserId = req.params.userId;
+        const authenticatedUserId = req.user._id; // Set by auth middleware (JSON Web Token or other)
+
+        // Check if user is requesting their own profile OR has admin privileges
+        if (requestedUserId !== authenticatedUserId.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const user = await User.findById(requestedUserId).select('-password -sensitiveField'); // exclude sensitive fields
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+1a. With the old code any user could log in and access any account if they guess a UserID. This is the top OWASP issue,
+    Broken Access Control.
+1b. This code is improved through better authentication (only allowing access if requesting own profile or has admin access)
+    and excludes sensitive data like passwords from being returned. It also has better error handling to return errors
+    instead of data.
+
+2.
+from flask import jsonify, request, abort
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+@app.route('/account/<user_id>', methods=['GET'])
+@jwt_required()  # Ensure valid token
+def get_account(user_id):
+    # Get authenticated user ID
+    current_user_id = get_jwt_identity()
+
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        abort(404, description="User not found")
+
+    # Check user access
+    if str(user_id) != str(current_user_id) and not user_has_role(current_user_id, 'admin'):
+        abort(403, description="Forbidden: Access denied")
+
+    return jsonify(user.to_dict())
+
+2a. The issue with the old code was that any user could access any account as long as they knew the user ID, another
+    instance of the most common OWASP Issue, Broken Access control
+2b. This new code requires that the user is logged in first to receive access to info. It also checks user access to give
+    elevated permissions or deny access
+
+Cryptographic Failures
+
+3.
+
+public String hashPassword(String password) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    md.update(password.getBytes());
+    byte[] digest = md.digest();
+    return DatatypeConverter.printHexBinary(digest);
+}
+
+4.
+
+import hashlib, uuid
+salt = uuid.uuid4().hex
+hashed_password = hashlib.sha512(password + salt).hexdigest()
+
+4a. The original code was simply too weak, sha1 is ineffective when it comes to cryptography.
+
+4b. This new code utilizes sha256 and a salt in order to better encrypt passwords.
+
+Server-Side Request Forgery
+
+9.
+import socket
+from urllib.parse import urlparse
+import requests
+
+FORBIDDEN_HOSTS = {"localhost", "127.0.0.1", "169.254.169.254"}
+
+def fetch_safe(url):
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("Only http(s) allowed")
+    host = parsed.hostname
+    if not host or host.lower() in FORBIDDEN_HOSTS:
+        raise ValueError("Host not allowed")
+
+if __name__ == "__main__":
+    try:
+        url = input("Enter URL: ").strip()
+        print(fetch_safe(url))
+    except Exception as e:
+        print("Blocked:", e)
+
+9a. The code before was vulnerable to Server Side Request Forgery, an attacker can submit a dangerous url or redirect to
+    a harmful file.
+9b. This version prevents input of forbidden hosts and only allows secure websites (http,https).
+
